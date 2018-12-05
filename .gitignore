@@ -1,0 +1,6 @@
+node_modules
+amplify/
+public/
+.cache
+.amplifyrc
+.graphqlconfig.yml
