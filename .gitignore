@@ -4,3 +4,4 @@ public/
 .cache
 .amplifyrc
 .graphqlconfig.yml
+.env*
