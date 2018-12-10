@@ -20,7 +20,8 @@
     "gatsby-source-graphql": "^2.0.7",
     "prop-types": "^15.5.7-alpha.1",
     "react": "^16.7.0-alpha.2",
-    "react-dom": "^16.7.0-alpha.2"
+    "react-dom": "^16.7.0-alpha.2",
+    "uuid": "^3.3.2"
   },
   "resolutions": {
     "react-hot-loader": "4.5.2"
