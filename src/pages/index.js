@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { graphql } from 'gatsby'
-import { API, graphqlOperation } from 'aws-amplify'
-import uuid from 'uuid/v4'
+import React, { useEffect, useRef, useState } from 'react';
+import { graphql } from 'gatsby';
+import { API, graphqlOperation } from 'aws-amplify';
+import uuid from 'uuid/v4';
+import { setConfig } from 'react-hot-loader';
 
-import { setConfig } from 'react-hot-loader'
-
-import { listPosts } from 'graphql/queries'
-import { createPost } from 'graphql/mutations'
+import { createPost, deletePost } from 'graphql/mutations'
 
 setConfig({ pureSFC: true });
 
@@ -17,32 +15,38 @@ function IndexPage({ data }) {
   const [title, setTitle] = useState('')
 
   useEffect(() => {
-    (async () => {
-      const { data } = await API.graphql(graphqlOperation(listPosts))
+    setPosts(items)
+    return null
+  }, ['items'])
 
-      if (data) setPosts(data.listPosts.items)
-    })()
-    return setPosts([])
-  }, [])
-
-  const handleInput = () => {
+  const handleTitle = () => {
     setTitle(inputEl.current.value)
   }
 
   const addPost = async (e) => {
-    e.preventDefault()
-    setTitle('')
+    e.preventDefault()    
     const createPostInput = {
-      input: {
-        id: uuid(),
-        title: title,
-        date: new Date().valueOf(),
-        description: title
-      }
+      id: uuid(),
+      title: title,
+      date: new Date().valueOf(),
+      description: title
     }
-    const { data, errors } = await API.graphql(graphqlOperation(createPost, createPostInput))
+    const { data, errors } = await API.graphql(
+      graphqlOperation(createPost, { input: createPostInput })
+    )
+    setTitle('')
     if (data) {
-      setPosts(posts.concat(data))
+      setPosts(posts.concat(data.createPost))
+    }
+    if (errors) console.error(errors)
+  }
+
+  const handleDeletePost = async (id, date) => {
+    const { data, errors } = await API.graphql(
+      graphqlOperation(deletePost, { input: { id, date } })
+    )
+    if (data) {
+      setPosts(posts.filter(post => post.id !== id))
     }
     if (errors) console.error(errors)
   }
@@ -51,17 +55,24 @@ function IndexPage({ data }) {
     <>
       <h1>Poop!</h1>
       <ul>
-        {items.map(({id, title}) => (
-          <li key={id}>{title}</li>
-        ))}
-      </ul>
-      <ul>
-        {posts.map(({id, title}) => (
-          <li key={id}>{title}</li>
+        {posts.map(({id, title, date}) => (
+          <li key={id}>
+            {title}
+            <button
+              key={uuid()}
+              onClick={() => handleDeletePost(id, date)} 
+              type="button"
+            ></button>
+          </li>
         ))}
       </ul>
       <form onSubmit={addPost}>
-        <input ref={inputEl} onChange={handleInput} type="text" />
+        <input 
+          ref={inputEl}
+          onChange={handleTitle}
+          value={title}
+          type="text"
+        />
         <button type="submit">Add new post</button>
       </form>
     </>
@@ -77,6 +88,7 @@ export const IndexQuery = graphql`
         items {
           id
           title
+          date
         }
       }
     }
