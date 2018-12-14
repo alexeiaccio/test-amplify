@@ -4,8 +4,8 @@ import { API, graphqlOperation } from 'aws-amplify';
 import uuid from 'uuid/v4';
 import { setConfig } from 'react-hot-loader';
 
-import { listPosts } from 'graphql/queries'
-import { createPost, deletePost } from 'graphql/mutations'
+import { listPosts } from '../graphql/queries'
+import { createPost, deletePost } from '../graphql/mutations'
 
 setConfig({ pureSFC: true });
 
